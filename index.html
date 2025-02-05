@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dino Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f7f7f7;
+            margin: 0;
+        }
+        #gameCanvas {
+            border: 1px solid #000;
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="600" height="200"></canvas>
+    <script>
+        // Game variables
+        let canvas = document.getElementById('gameCanvas');
+        let ctx = canvas.getContext('2d');
+        let dino = { x: 50, y: 150, width: 20, height: 20, jump: false };
+        let gravity = 1;
+        let obstacles = [];
+        let score = 0;
+
+        // Game loop
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawDino();
+            drawObstacles();
+            updateObstacles();
+            checkCollision();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Draw Dino
+        function drawDino() {
+            ctx.fillStyle = 'green';
+            ctx.fillRect(dino.x, dino.y, dino.width, dino.height);
+            if (dino.jump) {
+                dino.y -= 5; // Jump height
+                if (dino.y <= 100) {
+                    dino.jump = false;
+                }
+            } else if (dino.y < 150) {
+                dino.y += gravity; // Gravity effect
+            }
+        }
+
+        // Draw obstacles
+        function drawObstacles() {
+            ctx.fillStyle = 'red';
+            obstacles.forEach(obstacle => {
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            });
+        }
+
+        // Update obstacles
+        function updateObstacles() {
+            if (Math.random() < 0.02) {
+                obstacles.push({ x: canvas.width, y: 150, width: 20, height: 20 });
+            }
+            obstacles.forEach(obstacle => {
+                obstacle.x -= 5; // Move obstacles
+            });
+            obstacles = obstacles.filter(obstacle => obstacle.x + obstacle.width > 0);
+        }
+
+        // Check collision
+        function checkCollision() {
+            obstacles.forEach(obstacle => {
+                if (dino.x < obstacle.x + obstacle.width &&
+                    dino.x + dino.width > obstacle.x &&
+                    dino.y < obstacle.y + obstacle.height &&
+                    dino.y + dino.height > obstacle.y) {
+                    alert('Game Over! Your score: ' + score);
+                    document.location.reload();
+                }
+            });
+            score++;
+        }
+
+        // Jump event
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space' && dino.y === 150) {
+                dino.jump = true;
+            }
+        });
+
+        // Start the game
+        gameLoop();
+    </script>
+</body>
+</html>
